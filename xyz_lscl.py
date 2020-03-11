@@ -21,11 +21,12 @@ if(w1<0 or h1<0 or w2<=w1 or h2<=h1 or w2>1 or h2>1) :
     print(" arguments must satisfy 0 <= w1 < w2 <= 1, 0 <= h1 < h2 <= 1")
     sys.exit()
 
-# read image python xyz_lscl.py 0.1 0.1 0.8 0.8 forest.jpg forest.bmp
-inputImage = cv2.imread(name_input, cv2.COLOR_BGR2XYZ) # IMREAD_COLOR
+# read image python xyz_lscl.py 0.2 0.2 0.7 0.7 fruits.jpg forest.bmp
+inputImage = cv2.imread(name_input, cv2.IMREAD_COLOR)
 if(inputImage is None) :
     print(sys.argv[0], ": Failed to read image from: ", name_input)
     sys.exit()
+
 cv2.imshow("input image: " + name_input, inputImage)
 
 # check for color image and change w1, w2, h1, h2 to pixel locations 
@@ -63,18 +64,19 @@ for i in range(H1, H2+1) :
         if r > 255:
             r = 255
 
-        gray = round(0.3*r + 0.6*g + 0.1*b + 0.5)
-        tmp1[i, j] = [gray, gray, gray]
-cv2.imshow("replace_gray", tmp1)
+        XYZimage = cv2.cvtColor(inputImage, cv2.COLOR_BGR2XYZ)
+
+cv2.imshow("XYZ image", XYZimage)
 
 # Slicing can be used for similar things
 # In this example the red channel is zeroed out
-tmp2 = np.copy(inputImage)
+tmp2 = np.copy(XYZimage)
 window_height = H2 - H1 + 1
 window_width = W2 -W1 + 1
 window = np.zeros((window_height, window_width))
 tmp2[H1: H2+1, W1: W2+1, 2] = window
-cv2.imshow("remove red", tmp2)
+
+cv2.imshow("back to RGB", tmp2)
 
 # saving the output - save the gray window image
 cv2.imwrite(name_output, tmp1)
@@ -82,6 +84,3 @@ cv2.imwrite(name_output, tmp1)
 # wait for key to exit
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-
-

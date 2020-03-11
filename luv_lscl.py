@@ -47,6 +47,21 @@ tmp1 = np.copy(inputImage)
 for i in range(H1, H2+1) :
     for j in range(W1, W2+1) :
         b, g, r = inputImage[i, j]
+
+        if b < 0:
+            b = 0
+        if b > 255:
+            b = 255
+
+        if g < 0:
+            g = 0
+        if g > 255:
+            g = 255
+
+        if r < 0:
+            r = 0
+        if r > 255:
+            r = 255
         gray = round(0.3*r + 0.6*g + 0.1*b + 0.5)
         tmp1[i, j] = [gray, gray, gray]
 cv2.imshow("replace_gray", tmp1)
