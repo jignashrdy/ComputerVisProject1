@@ -21,8 +21,8 @@ if(w1<0 or h1<0 or w2<=w1 or h2<=h1 or w2>1 or h2>1) :
     print(" arguments must satisfy 0 <= w1 < w2 <= 1, 0 <= h1 < h2 <= 1")
     sys.exit()
 
-# read image
-inputImage = cv2.imread(name_input, cv2.IMREAD_COLOR)
+# read image python xyz_lscl.py 0.1 0.1 0.8 0.8 forest.jpg forest.bmp
+inputImage = cv2.imread(name_input, cv2.COLOR_BGR2XYZ) # IMREAD_COLOR
 if(inputImage is None) :
     print(sys.argv[0], ": Failed to read image from: ", name_input)
     sys.exit()
@@ -47,6 +47,22 @@ tmp1 = np.copy(inputImage)
 for i in range(H1, H2+1) :
     for j in range(W1, W2+1) :
         b, g, r = inputImage[i, j]
+
+        if b < 0:
+            b = 0
+        if b > 255:
+            b = 255
+
+        if g < 0:
+            g = 0
+        if g > 255:
+            g = 255
+
+        if r < 0:
+            r = 0
+        if r > 255:
+            r = 255
+
         gray = round(0.3*r + 0.6*g + 0.1*b + 0.5)
         tmp1[i, j] = [gray, gray, gray]
 cv2.imshow("replace_gray", tmp1)
