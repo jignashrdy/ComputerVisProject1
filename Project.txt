@@ -1,0 +1,8 @@
+1. Convert image to LUV or XYZ
+2. Convert user-defined area on the image to grayscale. 
+3. Calculate the linear stretching value using the highest and lowest value in that gray area.
+4. Store the value in the L channel or Y channel.
+5. Output the image.
+6. Store the image in a file.
+
+Lines 39-56 are what changes.
