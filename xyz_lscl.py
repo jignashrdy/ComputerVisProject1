@@ -21,65 +21,56 @@ if(w1<0 or h1<0 or w2<=w1 or h2<=h1 or w2>1 or h2>1) :
     print(" arguments must satisfy 0 <= w1 < w2 <= 1, 0 <= h1 < h2 <= 1")
     sys.exit()
 
-# read image python xyz_lscl.py 0.2 0.2 0.7 0.7 fruits.jpg forest.bmp
+# read image
 inputImage = cv2.imread(name_input, cv2.IMREAD_COLOR)
 if(inputImage is None) :
     print(sys.argv[0], ": Failed to read image from: ", name_input)
     sys.exit()
-
-cv2.imshow("input image: " + name_input, inputImage)
+#cv2.imshow("input image: " + name_input, inputImage)
 
 # check for color image and change w1, w2, h1, h2 to pixel locations 
 rows, cols, bands = inputImage.shape
 if(bands != 3) :
     print("Input image is not a standard color image:", inputImage)
     sys.exit()
+#python xyz_lscl.py 0.2 0.3 0.7 0.7 fruits.jpg fruits.bmp
 
 W1 = round(w1*(cols-1))
 H1 = round(h1*(rows-1))
 W2 = round(w2*(cols-1))
 H2 = round(h2*(rows-1))
-
+###################################
+###################################
+###################################
 # The transformation should be applied only to
 # the pixels in the W1,W2,H1,H2 range.
 # The following code goes over these pixels
+xyz_img = cv2.cvtColor(inputImage,cv2.COLOR_BGR2XYZ)
+x,y,z = cv2.split(xyz_img)
+outputImage = xyz_img.copy()
 
-tmp1 = np.copy(inputImage)
-for i in range(H1, H2+1) :
-    for j in range(W1, W2+1) :
-        b, g, r = inputImage[i, j]
+win = y[H1:H2,W1:W2]
+### Note: Linear stretching is obtained with opencv with command 'cv2.normalize'
+liner_str_win = cv2.normalize(win,0,255,cv2.NORM_MINMAX)
+outputImage[:,:,1][H1:H2, W1:W2] = liner_str_win
 
-        if b < 0:
-            b = 0
-        if b > 255:
-            b = 255
+bgr_output = cv2.cvtColor(outputImage,cv2.COLOR_XYZ2BGR)
 
-        if g < 0:
-            g = 0
-        if g > 255:
-            g = 255
-
-        if r < 0:
-            r = 0
-        if r > 255:
-            r = 255
-
-        XYZimage = cv2.cvtColor(inputImage, cv2.COLOR_BGR2XYZ)
-
-cv2.imshow("XYZ image", XYZimage)
+cv2.imshow('BGR_input',inputImage)
+cv2.imshow('BGR_output',bgr_output)
+cv2.imshow('xyz_output', outputImage)
+##################################
+##################################
+##################################
 
 # Slicing can be used for similar things
 # In this example the red channel is zeroed out
-tmp2 = np.copy(XYZimage)
+tmp2 = np.copy(inputImage)
 window_height = H2 - H1 + 1
 window_width = W2 -W1 + 1
 window = np.zeros((window_height, window_width))
 tmp2[H1: H2+1, W1: W2+1, 2] = window
-
-cv2.imshow("back to RGB", tmp2)
-
-# saving the output - save the gray window image
-cv2.imwrite(name_output, tmp1)
+#cv2.imshow("remove red", tmp2)
 
 # wait for key to exit
 cv2.waitKey(0)

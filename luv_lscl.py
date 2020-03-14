@@ -26,7 +26,7 @@ inputImage = cv2.imread(name_input, cv2.IMREAD_COLOR)
 if(inputImage is None) :
     print(sys.argv[0], ": Failed to read image from: ", name_input)
     sys.exit()
-cv2.imshow("input image: " + name_input, inputImage)
+#cv2.imshow("input image: " + name_input, inputImage)
 
 # check for color image and change w1, w2, h1, h2 to pixel locations 
 rows, cols, bands = inputImage.shape
@@ -39,32 +39,31 @@ H1 = round(h1*(rows-1))
 W2 = round(w2*(cols-1))
 H2 = round(h2*(rows-1))
 
+#################################
+#################################
+#################################
 # The transformation should be applied only to
 # the pixels in the W1,W2,H1,H2 range.
 # The following code goes over these pixels
 
-tmp1 = np.copy(inputImage)
-for i in range(H1, H2+1) :
-    for j in range(W1, W2+1) :
-        b, g, r = inputImage[i, j]
+luv_img = cv2.cvtColor(inputImage,cv2.COLOR_BGR2LUV)
+l,u,v = cv2.split(luv_img)
+outputImage = luv_img.copy()
 
-        if b < 0:
-            b = 0
-        if b > 255:
-            b = 255
+win = l[H1:H2,W1:W2]
+### Note: Linear stretching is obtained with opencv with command 'cv2.normalize'
+liner_str_win = cv2.normalize(win,0,255,cv2.NORM_MINMAX)
+outputImage[:,:,0][H1:H2, W1:W2] = liner_str_win
 
-        if g < 0:
-            g = 0
-        if g > 255:
-            g = 255
+bgr_output = cv2.cvtColor(outputImage,cv2.COLOR_LUV2BGR)
 
-        if r < 0:
-            r = 0
-        if r > 255:
-            r = 255
-        gray = round(0.3*r + 0.6*g + 0.1*b + 0.5)
-        tmp1[i, j] = [gray, gray, gray]
-cv2.imshow("replace_gray", tmp1)
+cv2.imshow('BGR_input', inputImage)
+cv2.imshow('BGR_output', bgr_output)
+cv2.imshow('luv_output', outputImage)
+##################################
+##################################
+##################################
+
 
 # Slicing can be used for similar things
 # In this example the red channel is zeroed out
@@ -73,14 +72,13 @@ window_height = H2 - H1 + 1
 window_width = W2 -W1 + 1
 window = np.zeros((window_height, window_width))
 tmp2[H1: H2+1, W1: W2+1, 2] = window
-cv2.imshow("remove red", tmp2)
+#cv2.imshow("remove red", tmp2)
 
-# saving the output - save the gray window image
-cv2.imwrite(name_output, tmp1)
+# saving the output image
+cv2.imwrite('output/luv_lscl_'+name_output, outputImage)
 
+cv2.imwrite('output/luv_lscl_bgr_'+name_output, bgr_output)
 # wait for key to exit
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
-
 
